@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>倒计时</title>
+</head>
+<body>
+<script language = "javascript">
+    /*js时间格式化
+    * 使用方法：
+    * var date = new Date();
+    *window.alert(date.pattern("yyyy/MM/dd hh:mm:ss"));
+    */
+    Date.prototype.pattern=function(fmt) {
+        var o = {
+            "M+" : this.getMonth()+1, //月份
+            "d+" : this.getDate(), //日
+            "h+" : this.getHours()%12 == 0 ? 12 : this.getHours()%12, //小时
+            "H+" : this.getHours(), //小时
+            "m+" : this.getMinutes(), //分
+            "s+" : this.getSeconds(), //秒
+            "q+" : Math.floor((this.getMonth()+3)/3), //季度
+            "S" : this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0" : "/u65e5",
+            "1" : "/u4e00",
+            "2" : "/u4e8c",
+            "3" : "/u4e09",
+            "4" : "/u56db",
+            "5" : "/u4e94",
+            "6" : "/u516d"
+        };
+        if(/(y+)/.test(fmt)){
+            fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+        }
+        if(/(E+)/.test(fmt)){
+            fmt=fmt.replace(RegExp.$1, ((RegExp.$1.length>1) ? (RegExp.$1.length>2 ? "/u661f/u671f" : "/u5468") : "")+week[this.getDay()+""]);
+        }
+        for(var k in o){
+            if(new RegExp("("+ k +")").test(fmt)){
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+            }
+        }
+        return fmt;
+    };
+    /*js时间格式化 苹果浏览器 safari Date 方法兼容方法
+     * 参数：theDate 可以是个字符串 safariDate("2016-12-17 15:54:00") 也可以是个 日期对象 safariDate(new Date())
+     * 使用方法： safariDate("2016-12-17 15:54:00") ； safariDate(new Date())
+     */
+    function safariDate(theDate){
+        if(theDate instanceof Date){
+            date = theDate.pattern("yyyy/MM/dd hh:mm:ss");
+        }
+        else if(typeof(theDate)=='string'){
+            var arr = theDate.split(/[- / :]/),
+                    date = new Date(arr[0], arr[1]-1, arr[2], arr[3], arr[4], arr[5]);
+        }
+        return date;
+    }
+    //获取倒计时方法
+    function GetTime(){
+        //设置终止时间
+        var endtime = safariDate("2016-12-19 11:22:00");
+        //设置开始时间
+        var starttime = safariDate(new Date());
+        //获取终止时间的时间戳
+        var endtime_str = Date.parse(endtime);
+        //获取当前时间的时间戳
+        var starttime_str = Date.parse(starttime);
+        //拼接日期
+        var Day,Hour,Minute,Second,remainSeconds_All,remainSeconds_Hour,remainSeconds_Minute;
+        remainSeconds_All  =  parseInt(Math.floor(endtime_str  -  starttime_str))/1000;//把相差的毫秒数转换为天数
+        //console.log('当前时间',starttime_str,'结束时间',endtime_str,'剩余秒数',remainSeconds_All);
+        Day = Math.floor(remainSeconds_All/(3600*24));
+        //总秒数-Day天的秒数=剩余给小时的所有秒数 remainSeconds_Hour
+        remainSeconds_Hour = remainSeconds_All-Day*(3600*24);
+        Hour = Math.floor(remainSeconds_Hour/3600);
+        //剩余的所有秒数-Hour小时的秒数=剩余给分钟的所有秒数 remainSeconds_Minute
+        remainSeconds_Minute = remainSeconds_Hour-Hour*3600;
+        Minute = Math.floor(remainSeconds_Minute/60);
+        //剩余所有秒数
+        Second = remainSeconds_Minute-Minute*60;
+        if(remainSeconds_All>0){
+            console.log(remainSeconds_All);
+            msg = "距离2017元旦："+Day+"天"+Hour+"小时"+Minute+"分"+Second+"秒";
+            document.all["getMe"].innerHTML=msg;
+            if(remainSeconds_All == 5*60) {
+                console.log('激动哇！还有5分钟咯!');
+            }
+        }else{
+            alert("元旦快乐!");
+            clearInterval(getMe);
+        }
+    }
+    getMe = setInterval("GetTime()",1000);
+</script>
+<div id="getMe" style="color:#98b804"></div>
+</body>
+</html>
